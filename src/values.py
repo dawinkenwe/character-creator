@@ -1,12 +1,12 @@
 
 
 class Bonus:
-    def __init__(self, val=0, name='', target='', source='', stacks=False):
+    def __init__(self, val=0, name='', target='', btype='', stacks=False):
         self.val = val
         self.name = name
         self.target = target
         self.stacks = stacks
-        self.source = source
+        self.btype = btype
 
 
 class Attribute:
@@ -25,20 +25,26 @@ class Attribute:
 
     def set_adjustments(self):
         adjustments = 0
-        sources = set()
+        btypes = {}
         for bonus in self.bonuses:
-            if bonus.source not in sources or bonus.stacks:
+            if bonus.stacks:
                 adjustments += bonus.val
-                sources.add(bonus.source)
+            elif bonus.btype not in btypes:
+                adjustments += bonus.val
+                btypes[bonus.btype] = bonus.val
+            elif btypes[bonus.btype] < bonus.val:
+                adjustments -= btypes[bonus.btype]
+                adjustments += bonus.val
+                btypes[bonus.btype] = bonus.val
         self.adjustments = adjustments
 
 
 class AbilityScore(Attribute):
-    def __init__(self, val=0, adjustments=0, name=''):
+    def __init__(self, val=10, adjustments=0, name=''):
         super().__init__(val, adjustments, name)
         self.mod = 0
 
     def calculate_mod(self):
-        self.mod = (self.val-10) // 2
+        self.mod = int((self.val + self.adjustments - 10) / 2)
 
 
